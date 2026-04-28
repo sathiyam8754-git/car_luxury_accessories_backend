@@ -9,10 +9,13 @@ dotenv.config();
 app.use(cors());
 app.use(express.json());
 
-await connectDB();
+ connectDB();
+
 app.get('/', (req, res) => {
   res.send('car luxury Server running');
 });
+
+
 
 app.use('/api/products', productRoutes);
 
