@@ -9,10 +9,19 @@ dotenv.config();
 app.use(cors());
 app.use(express.json());
 
-await connectDB();
+app.use(cors({
+  origin: 'http://localhost:4200',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
+ connectDB();
+
 app.get('/', (req, res) => {
   res.send('car luxury Server running');
 });
+
+
 
 app.use('/api/products', productRoutes);
 
