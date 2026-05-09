@@ -24,13 +24,31 @@ export const addProduct = async (req, res) => {
       shortDesc,
       fullDesc,
       image,
+      images,
       tags,
+      amount,
     } = req.body;
 
     if (!name || !category) {
       return res
         .status(400)
         .json({ success: false, message: 'name and category are required' });
+    }
+
+    if (amount !== undefined && (typeof amount !== 'number' || amount < 0)) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'amount must be a non-negative number' });
+    }
+
+    let finalImages = Array.isArray(images)
+      ? images.filter(s => typeof s === 'string' && s.trim())
+      : (typeof image === 'string' && image.trim() ? [image.trim()] : []);
+
+    if (finalImages.length > 3) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'A product can have at most 3 images' });
     }
 
     let finalId = productId;
@@ -55,8 +73,9 @@ export const addProduct = async (req, res) => {
       categoryIcon,
       shortDesc,
       fullDesc,
-      image,
+      images: finalImages,
       tags,
+      amount,
     });
 
     res.status(201).json({
@@ -88,6 +107,36 @@ export const updateProduct = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: 'No fields provided to update' });
+    }
+
+    if (
+      updates.amount !== undefined &&
+      (typeof updates.amount !== 'number' || updates.amount < 0)
+    ) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'amount must be a non-negative number' });
+    }
+
+    if (updates.image !== undefined && updates.images === undefined) {
+      updates.images = typeof updates.image === 'string' && updates.image.trim()
+        ? [updates.image.trim()]
+        : [];
+    }
+    delete updates.image;
+
+    if (updates.images !== undefined) {
+      if (!Array.isArray(updates.images)) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'images must be an array of strings' });
+      }
+      updates.images = updates.images.filter(s => typeof s === 'string' && s.trim());
+      if (updates.images.length > 3) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'A product can have at most 3 images' });
+      }
     }
 
     const updated = await Product.findOneAndUpdate(
