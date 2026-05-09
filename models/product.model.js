@@ -9,8 +9,16 @@ const productSchema = new mongoose.Schema(
     categoryIcon: { type: String, default: '' },
     shortDesc: { type: String, default: '' },
     fullDesc: { type: String, default: '' },
-    image: { type: String, default: '' },
-    tags: { type: [String], default: [] }, 
+    images: {
+      type: [String],
+      default: [],
+      validate: {
+        validator: arr => Array.isArray(arr) && arr.length <= 3,
+        message: 'A product can have at most 3 images',
+      },
+    },
+    tags: { type: [String], default: [] },
+    amount: { type: Number, default: 0, min: 0 },
   },
   {
     collection: 'product_list',
